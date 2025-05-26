@@ -21,16 +21,15 @@ public class NauticalNightmaresMain implements ModInitializer {
 		LOGGER.info("rahhhhh");
 
 		ModBlocks.registerModBlocks();
-		ModArmorMaterials.registerModArmorMaterials();
-		ModToolMaterials.registerModToolMaterials();
+		ModDataComponentTypes.registerModDataComponentTypes();
+		ModEntityAttributes.registerModEntityAttributes();
 		ModFoodComponents.registerModFoodComponents();
+		ModArmorMaterials.registerModArmorMaterials();
 		ModItems.registerModItems();
 		ModItemGroups.registerModItemGroups();
 		ModEntities.registerModEntities();
-		ModFoodComponents.registerModFoodComponents();
 		ModEnchantments.registerModEnchantments();
 		ModSounds.registerModSounds();
 		ModEffects.registerModEffects();
-		ModDataComponentTypes.registerModDataComponentTypes();
 	}
 }
