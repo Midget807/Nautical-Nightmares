@@ -1,10 +1,10 @@
 package net.midget807.nautical_nightmares.entity;
 
 public interface CanBePressurised {
-    double getPressure();
-    void setPressure(double pressure);
-    double getPressureAsStat();
-    void setPressureAsStat(double pressureAsStat);
+    int getPressure();
+    void setPressure(int pressure);
+    int getPressureAsStat();
+    void setPressureAsStat(int pressureAsStat);
 
     float getPressurisedScale();
     int getPressurisedTicks();
@@ -16,4 +16,9 @@ public interface CanBePressurised {
     void setShouldPressurise(boolean shouldPressurise);
     boolean canPressurise();
     void setCanPressurise(boolean canPressurise);
+
+    int getMaxPressure();
+    void setMaxPressure(int maxPressure);
+    int getMaxPressureAsStat();
+    void setMaxPressureAsStat(int maxPressureAsStat);
 }

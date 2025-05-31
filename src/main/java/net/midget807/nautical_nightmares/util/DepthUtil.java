@@ -19,20 +19,20 @@ public class DepthUtil {
         return entity.getBlockY() <= -256 /*&& todo add dimension*/;
     }
 
-    public static boolean isInUpperTransition(LivingEntity entity, World world) {
-        if (world == World.BATHYPELAGIC || world == World.ABYSSOPELAGIC) {
+    public static boolean isInUpperTransition(LivingEntity entity, DepthUtil.World world) {
+        if (world == DepthUtil.World.BATHYPELAGIC || world == DepthUtil.World.ABYSSOPELAGIC) {
             return entity.getBlockY() >= 16;
         }
         return false;
     }
-    public static boolean isInLowerTransition(LivingEntity entity, World world) {
-        if (world == World.MESOPELAGIC || world == World.BATHYPELAGIC) {
+    public static boolean isInLowerTransition(LivingEntity entity, DepthUtil.World world) {
+        if (world == DepthUtil.World.MESOPELAGIC || world == DepthUtil.World.BATHYPELAGIC) {
             return entity.getBlockY() <= -(getWaterHeight(world) + 16);
         }
         return false;
     }
 
-    public static int getWaterHeight(World world) {
+    public static int getWaterHeight(DepthUtil.World world) {
         return switch (world) {
             case MESOPELAGIC -> MESOPELAGIC_WATER;
             case BATHYPELAGIC -> BATHYPELAGIC_WATER;
@@ -43,12 +43,17 @@ public class DepthUtil {
     public static boolean entityIsOutOfDepthWorld(AbstractNauticalNightmaresEntity entity) {
         return entity.getEntityWorld().getRegistryKey() != getWorldKeyFromEnum(entity.getDepthWorld());
     }
-    public static RegistryKey<net.minecraft.world.World> getWorldKeyFromEnum(World world) {
+    public static RegistryKey<net.minecraft.world.World> getWorldKeyFromEnum(DepthUtil.World world) {
         return switch (world) {
             case MESOPELAGIC -> ModDimensions.MESOPELAGIC_WK;
             case BATHYPELAGIC -> ModDimensions.BATHYPELAGIC_WK;
             case ABYSSOPELAGIC -> ModDimensions.ABYSSOPELAGIC_WK;
         };
+    }
+    public static boolean isInDangerZone(net.minecraft.world.World world, LivingEntity entity) {
+        return world.getRegistryKey() == DepthUtil.getWorldKeyFromEnum(DepthUtil.World.MESOPELAGIC) && DepthUtil.isBelowFreeDiveDepth(entity) ||
+                world.getRegistryKey() == DepthUtil.getWorldKeyFromEnum(DepthUtil.World.BATHYPELAGIC) ||
+                world.getRegistryKey() == DepthUtil.getWorldKeyFromEnum(DepthUtil.World.ABYSSOPELAGIC);
     }
 
     public enum World {

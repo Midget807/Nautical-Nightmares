@@ -1,21 +1,27 @@
 package net.midget807.nautical_nightmares.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.midget807.nautical_nightmares.entity.AbstractNauticalNightmaresEntity;
 import net.midget807.nautical_nightmares.entity.CanBePressurised;
 import net.midget807.nautical_nightmares.entity.ModDamages;
+import net.midget807.nautical_nightmares.registry.ModEntityAttributes;
 import net.midget807.nautical_nightmares.util.DepthUtil;
 import net.midget807.nautical_nightmares.world.ModDimensions;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.AttributeContainer;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements Attackable, CanBePressurised {
     @Unique
-    private double pressure;
+    private int pressure;
     @Unique
     private static final TrackedData<Integer> PRESSURISED_TICKS = DataTracker.registerData(LivingEntity.class, TrackedDataHandlerRegistry.INTEGER);
     @Unique
@@ -35,7 +41,9 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
     @Unique
     private boolean shouldPressurise;
     @Unique
-    private boolean canPressurise;
+    private boolean canPressurise = true;
+    @Unique
+    private int maxPressure;
 
     @Shadow public abstract boolean isAlive();
 
@@ -44,6 +52,14 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
 
     @Shadow public abstract void damageArmor(DamageSource source, float amount);
 
+    @Shadow public abstract int getArmor();
+
+    @Shadow public abstract double getAttributeValue(RegistryEntry<EntityAttribute> attribute);
+
+    @Shadow public abstract AttributeContainer getAttributes();
+
+    @Shadow protected abstract void updateAttributes();
+
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
@@ -51,6 +67,10 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
     @Inject(method = "initDataTracker", at = @At("HEAD"))
     private void nauticalNightmares$addData(DataTracker.Builder builder, CallbackInfo ci) {
         builder.add(PRESSURISED_TICKS, 0);
+    }
+    @ModifyReturnValue(method = "createLivingAttributes", at = @At("RETURN"))
+    private static DefaultAttributeContainer.Builder nauticalNightmares$initAttributes(DefaultAttributeContainer.Builder original) {
+        return original.add(ModEntityAttributes.GENERIC_PRESSURE_RESISTANCE);
     }
 
     @Override
@@ -75,22 +95,22 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
     }
 
     @Override
-    public double getPressure() {
+    public int getPressure() {
         return this.pressure;
     }
 
     @Override
-    public void setPressure(double pressure) {
+    public void setPressure(int pressure) {
         this.pressure = pressure;
     }
 
     @Override
-    public double getPressureAsStat() {
-        return Math.floor(this.pressure / 120);
+    public int getPressureAsStat() {
+        return (int) Math.floor(this.pressure / 120);
     }
 
     @Override
-    public void setPressureAsStat(double pressureAsStat) {
+    public void setPressureAsStat(int pressureAsStat) {
         this.setPressure(this.getPressureAsStat() * 120);
     }
 
@@ -119,20 +139,46 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
         this.canPressurise = canPressurise;
     }
 
+    @Override
+    public int getMaxPressure() {
+        return this.maxPressure;
+    }
+
+    @Override
+    public int getMaxPressureAsStat() {
+        return (int) this.maxPressure / 120;
+    }
+
+    @Override
+    public void setMaxPressure(int maxPressure) {
+        this.maxPressure = maxPressure;
+    }
+
+    @Override
+    public void setMaxPressureAsStat(int maxPressureAsStat) {
+        this.setMaxPressure(maxPressureAsStat * 120);
+    }
+
     @Inject(method = "baseTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;baseTick()V"))
     private void nauticalNightmares$tickPressure(CallbackInfo ci) {
         if (this.isAlive()) {
+            this.setShouldPressurise(DepthUtil.isInDangerZone(this.getWorld(), ((LivingEntity)((Object)this))) && Math.abs(this.getPressure()) > this.getMaxPressure());
+
             if (this.getWorld().getRegistryKey() == ModDimensions.MESOPELAGIC_WK ||
                     this.getWorld().getRegistryKey() == ModDimensions.BATHYPELAGIC_WK ||
                     this.getWorld().getRegistryKey() == ModDimensions.ABYSSOPELAGIC_WK
             ) {
+                this.setMaxPressure(256 + (int) (((LivingEntity)((Object)this)).getAttributeValue(ModEntityAttributes.GENERIC_PRESSURE_RESISTANCE) * 120));
                 this.isPressurised = this.getPressurisedTicks() >= this.getMinPressurisedDamageTicks();
-                this.setPressure(Math.abs(this.getBlockY()));
+                if (this.getBlockY() < 0) {
+                    this.setPressure(Math.abs(this.getBlockY()));
+                }
             } else {
                 this.setPressure(0);
             }
         }
     }
+    private int pressureDamageTick = 0;
     @Inject(method = "tick", at = @At("TAIL"))
     private void nauticalNightmares$pressurise(CallbackInfo ci) {
         if (!this.getWorld().isClient && !((LivingEntity)((Object)this)).isDead()) {
@@ -143,7 +189,10 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
                 this.setPressurisedTicks(Math.max(0, i - 1));
             }
             if (this.isPressurised() && this.canPressurise()) {
-                this.damage(ModDamages.getDamageSource(((LivingEntity)((Object)this)), ModDamages.PRESSURISED), 8.0f);
+                this.damage(ModDamages.getDamageSource(((LivingEntity)((Object)this)), ModDamages.PRESSURISED), 1.0f);
+            }
+            if (((LivingEntity)((Object)this)) instanceof PlayerEntity player) {
+                player.sendMessage(Text.literal("Pressure Ticks: " + this.getPressurisedTicks()), true);
             }
         }
     }
