@@ -62,9 +62,9 @@ public abstract class InGameHudMixin {
         context.drawGuiTexture(ModTextureIds.PRESSURE_BAR_OVERLAY, i, j, 2, 81, 5);
 
         if (((CanBePressurised)player).getPressurisedTicks() > 0) {
-            float lerpedAmount = MathHelper.abs((float) Math.tanh((3 * MathHelper.sin((float) ((CanBePressurised) player).getPressurisedTicks()))));//todo place correctly
+            float lerpedAmount = MathHelper.abs((float) Math.tanh((2 * MathHelper.sin((float) ((CanBePressurised) player).getPressurisedTicks() / 20))));//todo place correctly
             int lerpedColor = ColorHelper.Argb.lerp(lerpedAmount, ColorHelper.Argb.getArgb(0, 255, 0, 0), ColorHelper.Argb.getArgb(255, 255, 0, 0));
-            context.drawText(this.getTextRenderer(), "Warning: Pressure Damage Imminent", context.getScaledWindowWidth() / 2, 30, lerpedColor, false);
+            context.drawText(this.getTextRenderer(), "Warning: Pressure Damage Imminent", context.getScaledWindowWidth() / 2 - (int) (this.getTextRenderer().getWidth("Warning: Pressure Damage Imminent") / 2) + 1, 15, lerpedColor, false);
         }
         RenderSystem.disableBlend();
         this.client.getProfiler().pop();
