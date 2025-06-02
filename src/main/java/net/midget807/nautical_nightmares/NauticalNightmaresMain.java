@@ -21,6 +21,7 @@ public class NauticalNightmaresMain implements ModInitializer {
 		LOGGER.info("rahhhhh");
 
 		ModBlocks.registerModBlocks();
+		ModBlockEntities.registerModBlockEntities();
 		ModDataComponentTypes.registerModDataComponentTypes();
 		ModEntityAttributes.registerModEntityAttributes();
 		ModFoodComponents.registerModFoodComponents();
@@ -31,5 +32,7 @@ public class NauticalNightmaresMain implements ModInitializer {
 		ModEnchantments.registerModEnchantments();
 		ModSounds.registerModSounds();
 		ModEffects.registerModEffects();
+		ModRecipes.registerModRecipes();
+		ModScreenHandlers.registerModScreenHandlers();
 	}
 }
