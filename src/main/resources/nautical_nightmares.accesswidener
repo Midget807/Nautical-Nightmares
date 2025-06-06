@@ -1,1 +1,3 @@
 accessWidener v2 named
+
+accessible field net/minecraft/entity/projectile/PersistentProjectileEntity weapon Lnet/minecraft/item/ItemStack;

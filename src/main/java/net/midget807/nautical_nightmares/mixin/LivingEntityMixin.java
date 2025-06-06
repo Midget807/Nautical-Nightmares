@@ -1,10 +1,13 @@
 package net.midget807.nautical_nightmares.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 import net.midget807.nautical_nightmares.entity.CanBePressurised;
 import net.midget807.nautical_nightmares.entity.ModDamages;
+import net.midget807.nautical_nightmares.entity.projectile.AuraliteTridentEntity;
 import net.midget807.nautical_nightmares.registry.ModEntityAttributes;
 import net.midget807.nautical_nightmares.util.DepthUtil;
 import net.midget807.nautical_nightmares.world.ModDimensions;
@@ -15,6 +18,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -22,7 +26,9 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -59,6 +65,12 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
     @Shadow public abstract AttributeContainer getAttributes();
 
     @Shadow protected abstract void updateAttributes();
+
+    @Shadow public abstract @Nullable DamageSource getRecentDamageSource();
+
+    @Shadow public abstract void takeKnockback(double strength, double x, double z);
+
+    @Shadow public abstract @Nullable LivingEntity getAttacker();
 
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -202,6 +214,39 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
             this.damageArmor(source, amount * 4);
         } else {
             original.call(instance, source, amount);
+        }
+    }
+
+    @ModifyExpressionValue(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;getSource()Lnet/minecraft/entity/Entity;", ordinal = 1))
+    public Entity nauticalNightmares$invertKnockback(Entity original) {
+        if (original instanceof AuraliteTridentEntity tridentEntity) {
+            double d = 0;
+            double e = 0;
+            DoubleDoubleImmutablePair doubleDoubleImmutablePair = tridentEntity.getKnockback((LivingEntity) ((Object)this), this.getDamageSources().trident(tridentEntity, this.getAttacker()));
+            d = -doubleDoubleImmutablePair.leftDouble();
+            e = -doubleDoubleImmutablePair.rightDouble();
+            this.takeInvertedKnockback(0.8, d, e);
+            return tridentEntity;
+        } else {
+            return original;
+        }
+    }
+
+
+    @Unique
+    public void takeInvertedKnockback(double strength, double x, double z) {
+        strength *= 1.0 - this.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
+        if (!(strength <= 0.0)) {
+            this.velocityDirty = true;
+            Vec3d vec3d = this.getVelocity();
+
+            while (x * x + z * z < 1.0E-5F) {
+                x = (Math.random() - Math.random()) * 0.01;
+                z = (Math.random() - Math.random()) * 0.01;
+            }
+
+            Vec3d vec3d2 = new Vec3d(x, 0.0, z).normalize().multiply(strength).negate();
+            this.setVelocity(vec3d.x / 2.0 - vec3d2.x, this.isOnGround() ? Math.min(0.4, vec3d.y / 2.0 + strength) : vec3d.y, vec3d.z / 2.0 - vec3d2.z);
         }
     }
 }
