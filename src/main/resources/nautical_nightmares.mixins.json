@@ -9,6 +9,9 @@
     "defaultRequire": 1
   },
   "client": [
-    "client.InGameHudMixin"
+    "client.ClientPlayerEntityMixin",
+    "client.CrossbowPosingMixin",
+    "client.InGameHudMixin",
+    "client.PlayerEntityRendererMixin"
   ]
 }

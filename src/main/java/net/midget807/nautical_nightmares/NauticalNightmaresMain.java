@@ -34,5 +34,6 @@ public class NauticalNightmaresMain implements ModInitializer {
 		ModEffects.registerModEffects();
 		ModRecipes.registerModRecipes();
 		ModScreenHandlers.registerModScreenHandlers();
+		ModParticles.registerModParticles();
 	}
 }

@@ -203,9 +203,6 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
             if (this.isPressurised() && this.canPressurise()) {
                 this.damage(ModDamages.getDamageSource(((LivingEntity)((Object)this)), ModDamages.PRESSURISED), 1.0f);
             }
-            if (((LivingEntity)((Object)this)) instanceof PlayerEntity player) {
-                player.sendMessage(Text.literal("Pressure Ticks: " + this.getPressurisedTicks()), true);
-            }
         }
     }
     @WrapOperation(method = "applyArmorToDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;damageArmor(Lnet/minecraft/entity/damage/DamageSource;F)V"))

@@ -9,6 +9,7 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 
 public class AuraliteToolMaterial implements ToolMaterial {
+
     @Override
     public int getDurability() {
         return 2673;
