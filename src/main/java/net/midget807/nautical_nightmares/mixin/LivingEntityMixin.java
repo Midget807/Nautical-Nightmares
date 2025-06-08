@@ -214,36 +214,4 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, Ca
         }
     }
 
-    @ModifyExpressionValue(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;getSource()Lnet/minecraft/entity/Entity;", ordinal = 1))
-    public Entity nauticalNightmares$invertKnockback(Entity original) {
-        if (original instanceof AuraliteTridentEntity tridentEntity) {
-            double d = 0;
-            double e = 0;
-            DoubleDoubleImmutablePair doubleDoubleImmutablePair = tridentEntity.getKnockback((LivingEntity) ((Object)this), this.getDamageSources().trident(tridentEntity, this.getAttacker()));
-            d = -doubleDoubleImmutablePair.leftDouble();
-            e = -doubleDoubleImmutablePair.rightDouble();
-            this.takeInvertedKnockback(0.8, d, e);
-            return tridentEntity;
-        } else {
-            return original;
-        }
-    }
-
-
-    @Unique
-    public void takeInvertedKnockback(double strength, double x, double z) {
-        strength *= 1.0 - this.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
-        if (!(strength <= 0.0)) {
-            this.velocityDirty = true;
-            Vec3d vec3d = this.getVelocity();
-
-            while (x * x + z * z < 1.0E-5F) {
-                x = (Math.random() - Math.random()) * 0.01;
-                z = (Math.random() - Math.random()) * 0.01;
-            }
-
-            Vec3d vec3d2 = new Vec3d(x, 0.0, z).normalize().multiply(strength).negate();
-            this.setVelocity(vec3d.x / 2.0 - vec3d2.x, this.isOnGround() ? Math.min(0.4, vec3d.y / 2.0 + strength) : vec3d.y, vec3d.z / 2.0 - vec3d2.z);
-        }
-    }
 }

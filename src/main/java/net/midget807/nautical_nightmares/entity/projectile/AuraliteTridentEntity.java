@@ -135,9 +135,9 @@ public class AuraliteTridentEntity extends PersistentProjectileEntity {
                 EnchantmentHelper.onTargetDamaged(serverWorld, entity, damageSource, this.getWeaponStack());
             }
 
-            if (entity instanceof LivingEntity livingEntity) {
-                this.knockback(livingEntity, damageSource);
-                this.onHit(livingEntity);
+            if (entity instanceof LivingEntity livingEntity && this.getOwner() != null && this.getOwner().isAlive()) {
+                livingEntity.setVelocity(this.getOwner().getPos().subtract(livingEntity.getPos()).normalize().multiply(1.2f)); //todo test
+                livingEntity.velocityModified = true;
             }
         }
 
