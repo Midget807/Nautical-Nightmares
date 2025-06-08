@@ -136,7 +136,7 @@ public class AuraliteTridentEntity extends PersistentProjectileEntity {
             }
 
             if (entity instanceof LivingEntity livingEntity && this.getOwner() != null && this.getOwner().isAlive()) {
-                livingEntity.setVelocity(this.getOwner().getPos().subtract(livingEntity.getPos()).normalize().multiply(1.2f)); //todo test
+                livingEntity.setVelocity(this.getOwner().getPos().subtract(livingEntity.getPos()).normalize().multiply(1.2f));
                 livingEntity.velocityModified = true;
             }
         }
