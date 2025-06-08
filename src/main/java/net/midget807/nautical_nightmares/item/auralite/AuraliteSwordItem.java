@@ -34,7 +34,6 @@ import net.minecraft.world.World;
 import java.util.List;
 
 public class AuraliteSwordItem extends SwordItem {
-    public boolean isCancelled = false;
 
     public AuraliteSwordItem(ToolMaterial toolMaterial, Settings settings) {
         super(toolMaterial, settings.component(DataComponentTypes.TOOL, createToolComponent()));
@@ -64,7 +63,7 @@ public class AuraliteSwordItem extends SwordItem {
 
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (user instanceof PlayerEntity player) {
+        if (user instanceof PlayerEntity player && player.getActiveHand() == Hand.MAIN_HAND) {
             int i = this.getMaxUseTime(stack, user) - remainingUseTicks;
             float f = getPullProgress(i);
             if (!((double) f < 0.2)) {
@@ -113,19 +112,21 @@ public class AuraliteSwordItem extends SwordItem {
 
     @Override
     public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-        float pullProgress = getPullProgress(this.getMaxUseTime(stack, user) - remainingUseTicks);
-        Vec3d start = user.getPos().add((double)0.0F, (double)(user.getHeight() / 2.0F), (double)0.0F);
-        Vec3d rotation = user.getRotationVec(1.0F);
-        Vec3d perp1 = rotation.crossProduct(new Vec3d((double)0.0F, (double)1.0F, (double)0.0F)).normalize();
-        Vec3d perp2 = rotation.crossProduct(perp1).normalize();
-        if (pullProgress < 1.0f) {
-            for(int i = 0; i < 10; ++i) {
-                double distance = (double) (4 * (i + 1)) - (double) pullProgress / (double) 120.0F % (double) 8.0F;
-                double angle = 0.015707962916848627 * (double) pullProgress + (Math.PI / 2D) * (double) i;
-                Vec3d particlePos = start.add(rotation.multiply(distance)).add(perp1.multiply(Math.sin(angle) * (double) 1.6F)).add(perp2.multiply(Math.cos(angle) * (double) 1.6F));
-                start.add(rotation.multiply(distance));
-                Vec3d velocity = particlePos.subtract(start).normalize().multiply((double) 2.0F);
-                user.getWorld().addParticle(ModParticles.WATER_CHARGE, particlePos.getX(), particlePos.getY(), particlePos.getZ(), -velocity.x, -velocity.y, -velocity.z);
+        if (user.getActiveHand() == Hand.MAIN_HAND) {
+            float pullProgress = getPullProgress(this.getMaxUseTime(stack, user) - remainingUseTicks);
+            Vec3d start = user.getPos().add((double) 0.0F, (double) (user.getHeight() / 2.0F), (double) 0.0F);
+            Vec3d rotation = user.getRotationVec(1.0F);
+            Vec3d perp1 = rotation.crossProduct(new Vec3d((double) 0.0F, (double) 1.0F, (double) 0.0F)).normalize();
+            Vec3d perp2 = rotation.crossProduct(perp1).normalize();
+            if (pullProgress < 1.0f) {
+                for (int i = 0; i < 10; ++i) {
+                    double distance = (double) (4 * (i + 1)) - (double) pullProgress / (double) 120.0F % (double) 8.0F;
+                    double angle = 0.015707962916848627 * (double) pullProgress + (Math.PI / 2D) * (double) i;
+                    Vec3d particlePos = start.add(rotation.multiply(distance)).add(perp1.multiply(Math.sin(angle) * (double) 1.6F)).add(perp2.multiply(Math.cos(angle) * (double) 1.6F));
+                    start.add(rotation.multiply(distance));
+                    Vec3d velocity = particlePos.subtract(start).normalize().multiply((double) 2.0F);
+                    user.getWorld().addParticle(ModParticles.WATER_CHARGE, particlePos.getX(), particlePos.getY(), particlePos.getZ(), -velocity.x, -velocity.y, -velocity.z);
+                }
             }
         }
     }
@@ -134,6 +135,9 @@ public class AuraliteSwordItem extends SwordItem {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack itemStack = user.getStackInHand(hand);
         user.setCurrentHand(hand);
-        return TypedActionResult.consume(itemStack);
+        if (user.getActiveHand() == Hand.MAIN_HAND) {
+            return TypedActionResult.success(itemStack);
+        }
+        return TypedActionResult.pass(itemStack);
     }
 }

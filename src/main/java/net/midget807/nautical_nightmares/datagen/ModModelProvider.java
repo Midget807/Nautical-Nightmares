@@ -21,6 +21,5 @@ public class ModModelProvider extends FabricModelProvider {
     public void generateItemModels(ItemModelGenerator itemModelGenerator) {
         itemModelGenerator.register(ModItems.BLANK, Models.GENERATED);
 
-        itemModelGenerator.register(ModItems.AURALITE_SWORD, Models.HANDHELD);
     }
 }

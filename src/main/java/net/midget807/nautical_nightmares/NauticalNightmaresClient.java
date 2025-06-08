@@ -10,11 +10,13 @@ import net.midget807.nautical_nightmares.entity.projectile.client.AuraliteTriden
 import net.midget807.nautical_nightmares.entity.projectile.client.WaterJetEntityRenderer;
 import net.midget807.nautical_nightmares.registry.ModEntities;
 import net.midget807.nautical_nightmares.registry.ModParticles;
+import net.midget807.nautical_nightmares.util.ModModelPredicateProvider;
 import net.minecraft.client.particle.EndRodParticle;
 
 public class NauticalNightmaresClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        ModModelPredicateProvider.registerModModelPredicates();
         EntityRendererRegistry.register(ModEntities.AURALITE_TRIDENT, AuraliteTridentEntityRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(ModEntityModelLayers.AURALITE_TRIDENT, AuraliteTridentEntityModel::getTexturedModelData);
         EntityRendererRegistry.register(ModEntities.WATER_JET, WaterJetEntityRenderer::new);

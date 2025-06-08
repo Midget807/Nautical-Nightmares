@@ -1,0 +1,63 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "nautical_nightmares:item/auralite_sword"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_0"
+    },
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0,
+        "nautical_nightmares:charge": 0.14
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_1"
+    },
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0,
+        "nautical_nightmares:charge": 0.28
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_2"
+    },
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0,
+        "nautical_nightmares:charge": 0.42
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_3"
+    },
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0,
+        "nautical_nightmares:charge": 0.56
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_4"
+    },
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0,
+        "nautical_nightmares:charge": 0.70
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_5"
+    },
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0,
+        "nautical_nightmares:charge": 0.84
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_6"
+    },
+    {
+      "predicate": {
+        "nautical_nightmares:charging": 1.0,
+        "nautical_nightmares:charge": 0.96
+      },
+      "model": "nautical_nightmares:item/auralite_sword_charge/charge_7"
+    }
+  ]
+}

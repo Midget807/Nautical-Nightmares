@@ -24,7 +24,10 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
         ItemStack main = player.getMainHandStack();
         if (main.isOf(ModItems.AURALITE_SWORD)) {
             boolean charging = player.isUsingItem();
-            if (hand == Hand.MAIN_HAND) {
+            if (charging) {
+                cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_HOLD);
+            }
+            /*if (hand == Hand.MAIN_HAND) {
                 if (charging) {
                     cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_HOLD);
                 } else {
@@ -36,7 +39,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
                 } else {
                     cir.setReturnValue(BipedEntityModel.ArmPose.EMPTY);
                 }
-            }
+            }*/
         }
     }
 }
