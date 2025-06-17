@@ -128,7 +128,6 @@ public class SeaSceptreItem extends Item {
                 stack.equals(this.requirements.get(5));
     }
 
-
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
         int i = this.getMaxUseTime(stack, user) * 20 - remainingUseTicks;
