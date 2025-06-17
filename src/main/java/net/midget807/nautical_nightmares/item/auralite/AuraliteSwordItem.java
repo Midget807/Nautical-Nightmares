@@ -1,26 +1,22 @@
 package net.midget807.nautical_nightmares.item.auralite;
 
+import net.midget807.nautical_nightmares.datagen.ModItemTagProvider;
 import net.midget807.nautical_nightmares.entity.projectile.WaterJetEntity;
 import net.midget807.nautical_nightmares.registry.ModParticles;
-import net.midget807.nautical_nightmares.util.ModParticleUtil;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.component.type.ToolComponent;
-import net.minecraft.entity.AreaEffectCloudEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -34,6 +30,7 @@ import net.minecraft.world.World;
 import java.util.List;
 
 public class AuraliteSwordItem extends SwordItem {
+    private int ticking = 0;
 
     public AuraliteSwordItem(ToolMaterial toolMaterial, Settings settings) {
         super(toolMaterial, settings.component(DataComponentTypes.TOOL, createToolComponent()));
@@ -139,5 +136,33 @@ public class AuraliteSwordItem extends SwordItem {
             return TypedActionResult.success(itemStack);
         }
         return TypedActionResult.pass(itemStack);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        if (entity instanceof PlayerEntity player && player.isWet()) {
+            ItemStack mainHandStack = ItemStack.EMPTY;
+            ItemStack offHandStack = ItemStack.EMPTY;
+            if (player.getStackInHand(Hand.MAIN_HAND).isIn(ModItemTagProvider.AURALITE_ITEMS)) {
+                mainHandStack = player.getStackInHand(Hand.MAIN_HAND);
+            }
+            if (player.getStackInHand(Hand.OFF_HAND).isIn(ModItemTagProvider.AURALITE_ITEMS)) {
+                offHandStack = player.getStackInHand(Hand.OFF_HAND);
+            }
+            if (this.ticking % 10 == 0) {
+                if (!mainHandStack.isEmpty()) {
+                    mainHandStack.setDamage(mainHandStack.getDamage() - 1);
+                }
+                if (!offHandStack.isEmpty()) {
+                    mainHandStack.setDamage(mainHandStack.getDamage() - 1);
+                }
+            }
+            if (this.ticking >= 20) {
+                this.ticking = 0;
+            } else {
+                this.ticking++;
+            }
+        }
+        super.inventoryTick(stack, world, entity, slot, selected);
     }
 }

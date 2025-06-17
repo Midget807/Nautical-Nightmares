@@ -1,11 +1,13 @@
 package net.midget807.nautical_nightmares.item.auralite;
 
+import net.midget807.nautical_nightmares.datagen.ModItemTagProvider;
 import net.midget807.nautical_nightmares.entity.projectile.AuraliteTridentEntity;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.ToolComponent;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -22,6 +24,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Position;
@@ -31,9 +34,12 @@ import net.minecraft.world.World;
 import java.util.List;
 
 public class AuraliteTridentItem extends TridentItem {
+    private int ticking = 0;
+
     public AuraliteTridentItem(Item.Settings settings) {
         super(settings);
     }
+
     public static AttributeModifiersComponent createAttributes() {
         return AttributeModifiersComponent.builder()
                 .add(
@@ -50,6 +56,34 @@ public class AuraliteTridentItem extends TridentItem {
     }
     public static ToolComponent createToolComponent() {
         return new ToolComponent(List.of(), 1.0F, 2);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        if (entity instanceof PlayerEntity player && player.isWet()) {
+            ItemStack mainHandStack = ItemStack.EMPTY;
+            ItemStack offHandStack = ItemStack.EMPTY;
+            if (player.getStackInHand(Hand.MAIN_HAND).isIn(ModItemTagProvider.AURALITE_ITEMS)) {
+                mainHandStack = player.getStackInHand(Hand.MAIN_HAND);
+            }
+            if (player.getStackInHand(Hand.OFF_HAND).isIn(ModItemTagProvider.AURALITE_ITEMS)) {
+                offHandStack = player.getStackInHand(Hand.OFF_HAND);
+            }
+            if (this.ticking % 10 == 0) {
+                if (!mainHandStack.isEmpty()) {
+                    mainHandStack.setDamage(mainHandStack.getDamage() - 1);
+                }
+                if (!offHandStack.isEmpty()) {
+                    mainHandStack.setDamage(mainHandStack.getDamage() - 1);
+                }
+            }
+            if (this.ticking >= 20) {
+                this.ticking = 0;
+            } else {
+                this.ticking++;
+            }
+        }
+        super.inventoryTick(stack, world, entity, slot, selected);
     }
 
     @Override

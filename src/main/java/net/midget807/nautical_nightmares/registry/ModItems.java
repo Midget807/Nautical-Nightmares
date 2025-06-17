@@ -2,6 +2,7 @@ package net.midget807.nautical_nightmares.registry;
 
 import net.midget807.nautical_nightmares.NauticalNightmaresMain;
 import net.midget807.nautical_nightmares.item.DiveSuitItem;
+import net.midget807.nautical_nightmares.item.SeaSceptreItem;
 import net.midget807.nautical_nightmares.item.auralite.AuraliteSwordItem;
 import net.midget807.nautical_nightmares.item.auralite.AuraliteToolMaterial;
 import net.midget807.nautical_nightmares.item.auralite.AuraliteTridentItem;
@@ -23,6 +24,8 @@ public class ModItems {
     public static final Item AURALITE_BOOTS = registerItem("auralite_boots", new DiveSuitItem(ModArmorMaterials.AURALITE, ArmorItem.Type.BOOTS, 7.0, new Item.Settings().maxCount(1).fireproof()));
     public static final Item AURALITE_TRIDENT = registerItem("auralite_trident", new AuraliteTridentItem(new Item.Settings().rarity(Rarity.EPIC).maxDamage(400).attributeModifiers(AuraliteTridentItem.createAttributeModifiers()).component(DataComponentTypes.TOOL, AuraliteTridentItem.createToolComponent()).fireproof().maxCount(1)));
     public static final Item AURALITE_SWORD = registerItem("auralite_sword", new AuraliteSwordItem(new AuraliteToolMaterial(), new Item.Settings().attributeModifiers(AuraliteSwordItem.createAttributeModifiers(new AuraliteToolMaterial(), 4, -2.4f)).fireproof().maxCount(1)));
+
+    public static final Item SEA_SCEPTRE = registerItem("sceptre_of_the_sea", new SeaSceptreItem(new Item.Settings().fireproof().maxCount(1)));
 
     public static final Item FERRIC_COPPER_INGOT = registerItem("ferric_copper_ingot", new Item(new Item.Settings()));
     public static final Item STEEL_INGOT = registerItem("steel_ingot", new Item(new Item.Settings()));
