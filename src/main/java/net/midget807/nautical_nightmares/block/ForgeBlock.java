@@ -62,11 +62,12 @@ public class ForgeBlock extends BlockWithEntity {
     ) {
         return world.isClient ? null : validateTicker(givenType, expectedType, ForgeBlockEntity::tick);
     }
+
     public void openScreen(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ForgeBlockEntity) {
             player.openHandledScreen((NamedScreenHandlerFactory) blockEntity);
-            player.incrementStat(Stats.CUSTOM.getOrCreateStat(NauticalNightmaresMain.id("interact_with_forge")));
+            //player.incrementStat(Stats.CUSTOM.getOrCreateStat(NauticalNightmaresMain.id("interact_with_forge")));
         }
     }
 
@@ -112,7 +113,7 @@ public class ForgeBlock extends BlockWithEntity {
             if (blockEntity instanceof ForgeBlockEntity) {
                 if (world instanceof ServerWorld) {
                     ItemScatterer.spawn(world, pos, (ForgeBlockEntity)blockEntity);
-                    ((ForgeBlockEntity)blockEntity).getRecipesUsedAndDropExperience((ServerWorld)world, Vec3d.ofCenter(pos));
+                    ((ForgeBlockEntity)blockEntity).getRecipesUsedAndDroppedExperience((ServerWorld)world, Vec3d.ofCenter(pos));
                 }
 
                 super.onStateReplaced(state, world, pos, newState, moved);

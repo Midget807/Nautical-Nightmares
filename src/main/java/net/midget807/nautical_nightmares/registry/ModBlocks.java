@@ -2,10 +2,8 @@ package net.midget807.nautical_nightmares.registry;
 
 import net.midget807.nautical_nightmares.NauticalNightmaresMain;
 import net.midget807.nautical_nightmares.block.ForgeBlock;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.MapColor;
+import net.minecraft.block.*;
+import net.minecraft.block.enums.NoteBlockInstrument;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -16,7 +14,12 @@ public class ModBlocks {
     public static final Block AURALITE_ORE = registerBlock("auralite_ore", new Block(AbstractBlock.Settings.copy(Blocks.ANCIENT_DEBRIS).mapColor(MapColor.PALE_YELLOW)));
     public static final Block DEEPSLATE_AURALITE_ORE = registerBlock("deepslate_auralite_ore", new Block(AbstractBlock.Settings.copy(Blocks.ANCIENT_DEBRIS).mapColor(MapColor.PALE_YELLOW)));
 
-    public static final Block FORGE = registerBlock("forge", new ForgeBlock(AbstractBlock.Settings.copy(Blocks.BLAST_FURNACE)));
+    public static final Block FORGE = registerBlock("forge", new ForgeBlock(AbstractBlock.Settings.create()
+            .mapColor(MapColor.STONE_GRAY)
+            .instrument(NoteBlockInstrument.BASEDRUM)
+            .requiresTool()
+            .strength(3.5F)
+            .luminance(Blocks.createLightLevelFromLitBlockState(13))));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

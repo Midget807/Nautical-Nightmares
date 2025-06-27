@@ -1,0 +1,18 @@
+{
+  "type": "nautical_nightmares:forging",
+  "cookingTime": 600,
+  "experience": 1.2,
+  "fuel": {
+    "item": "minecraft:blaze_powder"
+  },
+  "item_1": {
+    "item": "nautical_nightmares:auric_steel_ingot"
+  },
+  "item_2": {
+    "item": "nautical_nightmares:ferric_copper_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "nautical_nightmares:auric_alloy_ingot"
+  }
+}

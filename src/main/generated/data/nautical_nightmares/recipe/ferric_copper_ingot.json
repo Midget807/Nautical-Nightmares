@@ -1,0 +1,18 @@
+{
+  "type": "nautical_nightmares:forging",
+  "cookingTime": 600,
+  "experience": 0.2,
+  "fuel": {
+    "tag": "minecraft:coals"
+  },
+  "item_1": {
+    "item": "minecraft:iron_ingot"
+  },
+  "item_2": {
+    "item": "minecraft:copper_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "nautical_nightmares:ferric_copper_ingot"
+  }
+}

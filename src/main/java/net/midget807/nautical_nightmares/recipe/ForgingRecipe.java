@@ -20,7 +20,6 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
     public static final String ITEM_2_KEY = "item_2";
     public static final String FUEL_KEY = "fuel";
     public static final String OUTPUT_KEY = "result";
-    public final CookingRecipeCategory category;
     public final String group;
     public final Ingredient item1;
     public final Ingredient item2;
@@ -29,8 +28,7 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
     public final float experience;
     public final int cookingTime;
 
-    public ForgingRecipe(CookingRecipeCategory category, String group, Ingredient item1, Ingredient item2, Ingredient fuel, ItemStack result, float experience, int cookingTime) {
-        this.category = category;
+    public ForgingRecipe(String group, Ingredient item1, Ingredient item2, Ingredient fuel, ItemStack result, float experience, int cookingTime) {
         this.group = group;
         this.item1 = item1;
         this.item2 = item2;
@@ -85,10 +83,6 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
         return this.cookingTime;
     }
 
-    public CookingRecipeCategory getCategory() {
-        return category;
-    }
-
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRecipes.FORGING_SERIALIZER;
@@ -113,14 +107,13 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
         public Serializer(int cookingTime) {
             CODEC = RecordCodecBuilder.mapCodec(
                     instance -> instance.group(
-                            CookingRecipeCategory.CODEC.fieldOf("category").orElse(CookingRecipeCategory.MISC).forGetter(recipe -> recipe.category),
                             Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
                             Ingredient.ALLOW_EMPTY_CODEC.fieldOf(ITEM_1_KEY).forGetter(recipe -> recipe.item1),
                             Ingredient.ALLOW_EMPTY_CODEC.fieldOf(ITEM_2_KEY).forGetter(recipe -> recipe.item2),
                             Ingredient.ALLOW_EMPTY_CODEC.fieldOf(FUEL_KEY).forGetter(recipe -> recipe.fuel),
                             ItemStack.VALIDATED_CODEC.fieldOf(OUTPUT_KEY).forGetter(recipe -> recipe.result),
                             Codec.FLOAT.fieldOf("experience").orElse(0.0F).forGetter(recipe -> recipe.experience),
-                            Codec.INT.fieldOf("cookingtime").orElse(cookingTime).forGetter(recipe -> recipe.cookingTime)
+                            Codec.INT.fieldOf("cookingTime").orElse(cookingTime).forGetter(recipe -> recipe.cookingTime)
                     ).apply(instance, ForgingRecipe::new)
             );
         }
@@ -137,19 +130,17 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
         }
         private static ForgingRecipe read(RegistryByteBuf buf) {
             String string = buf.readString();
-            CookingRecipeCategory cookingRecipeCategory = buf.readEnumConstant(CookingRecipeCategory.class);
             Ingredient ingredient = Ingredient.PACKET_CODEC.decode(buf);
             Ingredient ingredient2 = Ingredient.PACKET_CODEC.decode(buf);
             Ingredient ingredient3 = Ingredient.PACKET_CODEC.decode(buf);
             ItemStack itemStack = ItemStack.PACKET_CODEC.decode(buf);
             float f = buf.readFloat();
             int i = buf.readVarInt();
-            return new ForgingRecipe(cookingRecipeCategory, string, ingredient, ingredient2, ingredient3, itemStack, f, i);
+            return new ForgingRecipe(string, ingredient, ingredient2, ingredient3, itemStack, f, i);
         }
 
         private static void write(RegistryByteBuf buf, ForgingRecipe recipe) {
             buf.writeString(recipe.group);
-            buf.writeEnumConstant(recipe.getCategory());
             Ingredient.PACKET_CODEC.encode(buf, recipe.item1);
             Ingredient.PACKET_CODEC.encode(buf, recipe.item2);
             Ingredient.PACKET_CODEC.encode(buf, recipe.fuel);
