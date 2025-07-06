@@ -1,2 +1,6 @@
-// 1.21.1	2025-07-06T19:50:18.1619721	Nautical Nightmares/Model Definitions
+// 1.21.1	2025-07-06T20:29:03.8638596	Nautical Nightmares/Model Definitions
+d37b0943d27c1602f2794316dfc5ce9b3ec95297 assets\nautical_nightmares\models\block\forge_on.json
 3185444f39b8bfd483dbb17af0b753a3a34f9b43 assets\nautical_nightmares\models\item\blank.json
+19d49176042eb103f32e1845c4d07785c69f2b5f assets\nautical_nightmares\models\item\forge.json
+268287ad30ffd3d4a113736c9390907ce938d455 assets\nautical_nightmares\models\block\forge.json
+4844def13f1d78eae6835a94c17d3cb8b41ba0e3 assets\nautical_nightmares\blockstates\forge.json
