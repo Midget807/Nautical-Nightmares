@@ -26,10 +26,11 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                         Ingredient.ofItems(Items.IRON_INGOT),
                         Ingredient.ofItems(Items.COPPER_INGOT),
                         Ingredient.fromTag(ItemTags.COALS),
+                        Ingredient.empty(),
                         RecipeCategory.MISC,
                         ModItems.FERRIC_COPPER_INGOT,
                         0.2f,
-                        600
+                        400
                 )
                 .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT))
                 .criterion(hasItem(Items.COPPER_INGOT), conditionsFromItem(Items.COPPER_INGOT))
@@ -41,10 +42,11 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                         Ingredient.ofItems(Items.IRON_BLOCK),
                         Ingredient.fromTag(ItemTags.COALS),
                         Ingredient.ofItems(Items.COAL_BLOCK),
+                        Ingredient.empty(),
                         RecipeCategory.MISC,
                         ModItems.STEEL_INGOT,
                         0.5f,
-                        600
+                        20 /*todo change back to 400*/
                 )
                 .criterion(hasItem(Items.IRON_BLOCK), conditionsFromItem(Items.IRON_BLOCK))
                 .criterion(hasItem(Items.COAL_BLOCK), conditionsFromItem(Items.COAL_BLOCK))
@@ -56,10 +58,11 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                         Ingredient.ofItems(ModItems.STEEL_INGOT),
                         Ingredient.ofItems(Items.GOLD_INGOT),
                         Ingredient.ofItems(Items.LAVA_BUCKET),
+                        Ingredient.empty(),
                         RecipeCategory.MISC,
                         ModItems.AURIC_STEEL_INGOT,
                         0.8f,
-                        600
+                        400
                 )
                 .criterion(hasItem(Items.GOLD_INGOT), conditionsFromItem(Items.GOLD_INGOT))
                 .criterion(hasItem(ModItems.STEEL_INGOT), conditionsFromItem(ModItems.STEEL_INGOT))
@@ -70,11 +73,12 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .create(
                         Ingredient.ofItems(ModItems.AURIC_STEEL_INGOT),
                         Ingredient.ofItems(ModItems.FERRIC_COPPER_INGOT),
-                        Ingredient.ofItems(Items.BLAZE_POWDER),
+                        Ingredient.ofItems(Items.LAVA_BUCKET),
+                        Ingredient.ofItems(Items.QUARTZ),
                         RecipeCategory.MISC,
                         ModItems.AURIC_ALLOY_INGOT,
                         1.2f,
-                        600
+                        400
                 )
                 .criterion(hasItem(ModItems.AURIC_STEEL_INGOT), conditionsFromItem(ModItems.AURIC_STEEL_INGOT))
                 .criterion(hasItem(ModItems.FERRIC_COPPER_INGOT), conditionsFromItem(ModItems.FERRIC_COPPER_INGOT))
@@ -86,25 +90,27 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                         Ingredient.ofItems(ModItems.AURIC_ALLOY_INGOT),
                         Ingredient.ofItems(Items.NETHERITE_INGOT),
                         Ingredient.ofItems(Items.BLAZE_ROD),
+                        Ingredient.ofItems(Items.QUARTZ),
                         RecipeCategory.MISC,
                         ModItems.NETHERITE_ALLOY_INGOT,
                         1.5f,
-                        600
+                        400
                 )
                 .criterion(hasItem(ModItems.AURIC_ALLOY_INGOT), conditionsFromItem(ModItems.AURIC_ALLOY_INGOT))
                 .criterion(hasItem(Items.NETHERITE_INGOT), conditionsFromItem(Items.NETHERITE_INGOT))
                 .criterion(hasItem(Items.BLAZE_ROD), conditionsFromItem(Items.BLAZE_ROD))
                 .offerTo(recipeExporter, getRecipeName(ModItems.NETHERITE_ALLOY_INGOT));
-        /*todo change fuel type*/
+
         ForgingRecipeJsonBuilder
                 .create(
                         Ingredient.ofItems(ModItems.NETHERITE_ALLOY_INGOT),
                         Ingredient.ofItems(ModItems.AURALITE_SCRAP),
                         Ingredient.ofItems(Items.BLAZE_ROD),
+                        Ingredient.ofItems(ModItems.BARITE_SHARD),
                         RecipeCategory.MISC,
                         ModItems.AURALITE_INGOT,
                         2.0f,
-                        600
+                        400
                 )
                 .criterion(hasItem(ModItems.NETHERITE_ALLOY_INGOT), conditionsFromItem(ModItems.NETHERITE_ALLOY_INGOT))
                 .criterion(hasItem(ModItems.AURALITE_SCRAP), conditionsFromItem(ModItems.AURALITE_SCRAP))

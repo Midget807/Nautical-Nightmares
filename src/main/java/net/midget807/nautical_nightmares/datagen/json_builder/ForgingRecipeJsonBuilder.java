@@ -31,25 +31,27 @@ public class ForgingRecipeJsonBuilder implements CraftingRecipeJsonBuilder {
     private final Ingredient input1;
     private final Ingredient input2;
     private final Ingredient fuel;
+    private final Ingredient catalyst;
     private final float experience;
     private final int cookTime;
     private final Map<String, AdvancementCriterion<?>> criteria = new LinkedHashMap<>();
     @Nullable
     private String group;
 
-    public ForgingRecipeJsonBuilder(RecipeCategory category, CookingRecipeCategory cookingCategory, ItemConvertible output, Ingredient input1, Ingredient input2, Ingredient fuel, float experience, int cookTime) {
+    public ForgingRecipeJsonBuilder(RecipeCategory category, CookingRecipeCategory cookingCategory, ItemConvertible output, Ingredient input1, Ingredient input2, Ingredient fuel, Ingredient catalyst, float experience, int cookTime) {
         this.category = category;
         this.cookingCategory = cookingCategory;
         this.output = output.asItem();
         this.input1 = input1;
         this.input2 = input2;
         this.fuel = fuel;
+        this.catalyst = catalyst;
         this.experience = experience;
         this.cookTime = cookTime;
     }
 
-    public static ForgingRecipeJsonBuilder create(Ingredient input1, Ingredient input2, Ingredient fuel, RecipeCategory category, ItemConvertible output, float experience, int cookTime) {
-        return new ForgingRecipeJsonBuilder(category, CookingRecipeCategory.MISC, output, input1, input2, fuel, experience, cookTime);
+    public static ForgingRecipeJsonBuilder create(Ingredient input1, Ingredient input2, Ingredient fuel, Ingredient catalyst, RecipeCategory category, ItemConvertible output, float experience, int cookTime) {
+        return new ForgingRecipeJsonBuilder(category, CookingRecipeCategory.MISC, output, input1, input2, fuel, catalyst, experience, cookTime);
     }
 
     public ForgingRecipeJsonBuilder criterion(String string, AdvancementCriterion<?> advancementCriterion) {
@@ -75,7 +77,7 @@ public class ForgingRecipeJsonBuilder implements CraftingRecipeJsonBuilder {
                 .rewards(AdvancementRewards.Builder.recipe(recipeId))
                 .criteriaMerger(AdvancementRequirements.CriterionMerger.OR);
         this.criteria.forEach(builder::criterion);
-        ForgingRecipe forgingRecipe = new ForgingRecipe((String) Objects.requireNonNullElse(this.group, ""), this.input1, this.input2, this.fuel, new ItemStack(this.output), this.experience, this.cookTime);
+        ForgingRecipe forgingRecipe = new ForgingRecipe((String) Objects.requireNonNullElse(this.group, ""), this.input1, this.input2, this.fuel, catalyst, new ItemStack(this.output), this.experience, this.cookTime);
         exporter.accept(recipeId, forgingRecipe, builder.build(recipeId.withPrefixedPath("recipes/" + this.category.getName() + "/")));
 
     }

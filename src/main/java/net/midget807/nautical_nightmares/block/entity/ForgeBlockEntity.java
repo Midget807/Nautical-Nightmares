@@ -1,15 +1,19 @@
 package net.midget807.nautical_nightmares.block.entity;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.midget807.nautical_nightmares.NauticalNightmaresMain;
 import net.midget807.nautical_nightmares.block.ForgeBlock;
+import net.midget807.nautical_nightmares.datagen.ModItemTagProvider;
 import net.midget807.nautical_nightmares.recipe.ForgingRecipe;
 import net.midget807.nautical_nightmares.recipe.ForgingRecipeInput;
 import net.midget807.nautical_nightmares.registry.ModBlockEntities;
 import net.midget807.nautical_nightmares.registry.ModRecipes;
 import net.midget807.nautical_nightmares.screen.ForgeScreenHandler;
+import net.midget807.nautical_nightmares.util.ForgingUtil;
+import net.minecraft.SharedConstants;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.entity.ExperienceOrbEntity;
@@ -18,18 +22,24 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.*;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -40,31 +50,38 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class ForgeBlockEntity extends LockableContainerBlockEntity implements SidedInventory, RecipeUnlocker, RecipeInputProvider {
     protected static final int INPUT_SLOT_1 = 0;
     protected static final int INPUT_SLOT_2 = 1;
-    protected static final int FUEL_SLOT_IN = 2;
-    protected static final int FUEL_SLOT_OUT = 3;
+    protected static final int FUEL_SLOT = 2;
+    protected static final int CATALYST_SLOT = 3;
     protected static final int OUTPUT_SLOT = 4;
     protected static final int[] TOP_SLOTS = new int[]{0, 1};
-    protected static final int[] SIDE_SLOTS = new int[]{2};
-    protected static final int[] BOTTOM_SLOTS = new int[]{3, 4};
+    protected static final int[] SIDE_SLOTS = new int[]{2, 3};
+    protected static final int[] BOTTOM_SLOTS = new int[]{4};
     public static final int BURN_TIME_PROPERTY_INDEX = 0;
-    public static final int COOK_TIME_PROPERTY_INDEX = 1;
-    public static final int COOK_TIME_TOTAL_PROPERTY_INDEX = 2;
+    public static final int FUEL_TIME_PROPERTY_INDEX = 1;
+    public static final int COOK_TIME_PROPERTY_INDEX = 2;
+    public static final int COOK_TIME_TOTAL_PROPERTY_INDEX = 3;
     protected DefaultedList<ItemStack> inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
-    public static final int fuelTime = 600;
+    int fuelTime;
     int burnTime;
     int cookTime;
     int cookTimeTotal;
+    @Nullable
+    private static Map<Item, Integer> fuelTimes;
+    private static Map<Item, Integer> fuelStrengths;
     protected final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
             return switch (index) {
                 case 0 -> ForgeBlockEntity.this.burnTime;
-                case 1 -> ForgeBlockEntity.this.cookTime;
-                case 2 -> ForgeBlockEntity.this.cookTimeTotal;
+                case 1 -> ForgeBlockEntity.this.fuelTime;
+                case 2 -> ForgeBlockEntity.this.cookTime;
+                case 3 -> ForgeBlockEntity.this.cookTimeTotal;
                 default -> 0;
             };
         }
@@ -76,16 +93,19 @@ public class ForgeBlockEntity extends LockableContainerBlockEntity implements Si
                     ForgeBlockEntity.this.burnTime = value;
                     break;
                 case 1:
-                    ForgeBlockEntity.this.cookTime = value;
+                    ForgeBlockEntity.this.fuelTime = value;
                     break;
                 case 2:
+                    ForgeBlockEntity.this.cookTime = value;
+                    break;
+                case 3:
                     ForgeBlockEntity.this.cookTimeTotal = value;
             }
         }
 
         @Override
         public int size() {
-            return 3;
+            return 4;
         }
     };
     private final Object2IntOpenHashMap<Identifier> recipesUsed = new Object2IntOpenHashMap<>();
@@ -96,8 +116,75 @@ public class ForgeBlockEntity extends LockableContainerBlockEntity implements Si
         this.matchGetter = RecipeManager.createCachedMatchGetter(ModRecipes.FORGING_TYPE);
     }
 
+    public static void clearFuelTimes() {
+        fuelTimes = null;
+    }
+
+    public static Map<Item, Integer> getOrCreateFuelTimeMap() {
+        Map<Item, Integer> map = fuelTimes;
+        if (map != null) {
+            return map;
+        } else {
+            Map<Item, Integer> map2 = Maps.<Item, Integer>newLinkedHashMap();
+            addFuel(map2, Items.COAL, 100);
+            addFuel(map2, Items.CHARCOAL, 100);
+            addFuel(map2, Items.COAL_BLOCK, 200);
+            addFuel(map2, Items.LAVA_BUCKET, 200);
+            addFuel(map2, Items.BLAZE_ROD, 300);
+            fuelTimes = map2;
+            return map2;
+        }
+    }
+
+    public static void clearFuelStrengths() {
+        fuelStrengths = null;
+    }
+
+    public static Map<Item, Integer> getOrCreateFuelStrengthMap() {
+        Map<Item, Integer> map = fuelStrengths;
+        if (map != null) {
+            return map;
+        } else {
+            Map<Item, Integer> map2 = Maps.<Item, Integer>newLinkedHashMap();
+            addFuel(map2, Items.COAL, ForgingUtil.ForgeStrengths.COALS.ordinal());
+            addFuel(map2, Items.CHARCOAL, ForgingUtil.ForgeStrengths.COALS.ordinal());
+            addFuel(map2, Items.COAL_BLOCK, ForgingUtil.ForgeStrengths.COAL_BLOCKS.ordinal());
+            addFuel(map2, Items.LAVA_BUCKET, ForgingUtil.ForgeStrengths.LAVA.ordinal());
+            addFuel(map2, Items.BLAZE_ROD, ForgingUtil.ForgeStrengths.BLAZE_ROD.ordinal());
+            fuelStrengths = map2;
+            return map2;
+        }
+    }
+
+    private static boolean isNonFlammableWood(Item item) {
+        return item.getRegistryEntry().isIn(ItemTags.NON_FLAMMABLE_WOOD);
+    }
+
+    private static void addFuel(Map<Item, Integer> fuelTimes, ItemConvertible item, int fuelTime) {
+        Item item2 = item.asItem();
+        if (isNonFlammableWood(item2)) {
+            if (SharedConstants.isDevelopment) {
+                throw (IllegalStateException) Util.throwOrPause(
+                        new IllegalStateException(
+                                "A developer tried to explicitly make fire resistant item " + item2.getName(null).getString() + " a furnace fuel. That will not work!"
+                        )
+                );
+            }
+        } else {
+            fuelTimes.put(item2, fuelTime);
+        }
+    }
+
+    private static void addFuel(Map<Item, Integer> fuelTimes, TagKey<Item> tag, int fuelTime) {
+        for (RegistryEntry<Item> registryEntry : Registries.ITEM.iterateEntries(tag)) {
+            if (!isNonFlammableWood(registryEntry.value())) {
+                fuelTimes.put(registryEntry.value(), fuelTime);
+            }
+        }
+    }
+
     public static boolean canUseAsFuel(ItemStack itemStack) {
-        return false;
+        return getOrCreateFuelTimeMap().containsKey(itemStack.getItem());
     }
 
     private boolean isBurning() {
@@ -139,39 +226,39 @@ public class ForgeBlockEntity extends LockableContainerBlockEntity implements Si
             blockEntity.burnTime--;
         }
 
-        ItemStack fuelStack = blockEntity.inventory.get(FUEL_SLOT_IN);
+        ItemStack fuelStack = blockEntity.inventory.get(FUEL_SLOT);
         ItemStack inputStack1 = blockEntity.inventory.get(INPUT_SLOT_1);
         ItemStack inputStack2 = blockEntity.inventory.get(INPUT_SLOT_2);
+        ItemStack catalystStack = blockEntity.inventory.get(CATALYST_SLOT);
         boolean hasInput1 = !inputStack1.isEmpty();
         boolean hasInput2 = !inputStack2.isEmpty();
         boolean hasFuel = !fuelStack.isEmpty();
+        boolean hasCatalyst = !catalystStack.isEmpty();
 
         if (blockEntity.isBurning() || hasFuel && hasInput1 && hasInput2) {
             RecipeEntry<?> recipeEntry;
             if (hasInput1 && hasInput2 && hasFuel) {
-                recipeEntry = blockEntity.matchGetter.getFirstMatch(new ForgingRecipeInput(inputStack1, inputStack2, fuelStack), world).orElse(null);
+                recipeEntry = blockEntity.matchGetter.getFirstMatch(new ForgingRecipeInput(inputStack1, inputStack2, fuelStack, catalystStack), world).orElse(null);
             } else {
                 recipeEntry = null;
             }
 
             int i = blockEntity.getMaxCountPerStack();
+
             if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), recipeEntry, blockEntity.inventory, i)) {
-                blockEntity.burnTime = fuelTime;
-                if (blockEntity.isBurning()) {
+                blockEntity.burnTime = blockEntity.getFuelTime(fuelStack, blockEntity, world);
+                blockEntity.fuelTime = blockEntity.burnTime;
+                if (blockEntity.isBurning() /*&& hasCatalystIfNeeded(blockEntity, world)*/) {
                     shouldMarkDirty = true;
+                    if (hasCatalyst) {
+                        catalystStack.decrement(1);
+                    }
                     if (hasFuel) {
                         Item fuelItem = fuelStack.getItem();
                         fuelStack.decrement(1);
                         if (fuelStack.isEmpty()) {
                             Item recipeRemainder = fuelItem.getRecipeRemainder();
-                            ItemStack currentFuelOutStack = blockEntity.inventory.get(FUEL_SLOT_OUT);
-
-                            if (blockEntity.inventory.get(FUEL_SLOT_OUT).isEmpty()) {
-                                blockEntity.inventory.set(FUEL_SLOT_OUT, recipeRemainder == null ? ItemStack.EMPTY : new ItemStack(recipeRemainder, 1));
-                            } else if (recipeRemainder != null && ItemStack.areItemsAndComponentsEqual(currentFuelOutStack, new ItemStack(recipeRemainder))) {
-                                currentFuelOutStack.increment(1);
-                                //todo check
-                            }
+                            blockEntity.inventory.set(FUEL_SLOT, recipeRemainder == null ? ItemStack.EMPTY : new ItemStack(recipeRemainder));
                         }
                     }
                 }
@@ -206,12 +293,57 @@ public class ForgeBlockEntity extends LockableContainerBlockEntity implements Si
         }
     }
 
+    private static boolean hasCatalystIfNeeded(ForgeBlockEntity blockEntity, World world) {
+        ForgingRecipeInput forgingRecipeInput = new ForgingRecipeInput(blockEntity.getStack(INPUT_SLOT_1), blockEntity.getStack(INPUT_SLOT_2), blockEntity.getStack(FUEL_SLOT), blockEntity.getStack(CATALYST_SLOT));
+        boolean needsCatalyst = blockEntity.matchGetter
+                .getFirstMatch(forgingRecipeInput, world)
+                .map(recipe -> recipe.value().needsCatalyst())
+                .orElse(false);
+        Optional<Ingredient> recipeCatalyst = needsCatalyst ? blockEntity.matchGetter
+                .getFirstMatch(forgingRecipeInput, world)
+                .map(recipe -> recipe.value().getCatalyst()) : Optional.empty();
+        @Nullable ItemStack blockEntityCatalyst = blockEntity.inventory.get(CATALYST_SLOT);
+        return needsCatalyst && recipeCatalyst.isPresent() && !blockEntityCatalyst.isEmpty() && recipeCatalyst.get().test(blockEntityCatalyst);
+    }
+
+    public int getFuelTime(ItemStack fuelStack, ForgeBlockEntity blockEntity, World world) {
+        ForgingRecipeInput forgingRecipeInput = new ForgingRecipeInput(blockEntity.getStack(INPUT_SLOT_1), blockEntity.getStack(INPUT_SLOT_2), blockEntity.getStack(FUEL_SLOT), blockEntity.getStack(CATALYST_SLOT));
+        if (fuelStack.isEmpty()) {
+            return 0;
+        } else {
+            Item item = fuelStack.getItem();
+            int blockEntityFuelStrength = getFuelStrength(blockEntity);
+            int defaultFuelTime = getOrCreateFuelTimeMap().getOrDefault(item, 0);
+            return blockEntity.matchGetter
+                    .getFirstMatch(forgingRecipeInput, world)
+                    .map(recipe -> (blockEntityFuelStrength != -1 && blockEntityFuelStrength >= getOrCreateFuelStrengthMap().get(ForgingUtil.getItemFromOrdinal(ForgingUtil.getStrengthFromIngredient(recipe.value().getFuel())))) ? defaultFuelTime : defaultFuelTime / 2)
+                    .orElse(0);
+        }
+    }
+
+    public int getFuelStrength(ForgeBlockEntity blockEntity) {
+        ItemStack fuelStack = blockEntity.inventory.get(FUEL_SLOT);
+        if (!blockEntity.isBurning() && !fuelStack.isEmpty()) {
+            return getOrCreateFuelStrengthMap().getOrDefault(fuelStack.getItem(), -1);
+        } else {
+            return -1;
+        }
+    }
+
     private static int getCookTime(World world, ForgeBlockEntity blockEntity) {
-        ForgingRecipeInput forgingRecipeInput = new ForgingRecipeInput(blockEntity.getStack(INPUT_SLOT_1), blockEntity.getStack(INPUT_SLOT_2), blockEntity.getStack(FUEL_SLOT_IN));
+        ForgingRecipeInput forgingRecipeInput = new ForgingRecipeInput(blockEntity.getStack(INPUT_SLOT_1), blockEntity.getStack(INPUT_SLOT_2), blockEntity.getStack(FUEL_SLOT), blockEntity.getStack(CATALYST_SLOT));
         return blockEntity.matchGetter
                 .getFirstMatch(forgingRecipeInput, world)
-                .map(recipe -> recipe.value().getCookingTime())
-                .orElse(20 * 30);
+                .map(recipe -> {
+                    if (recipe.value().needsCatalyst() && !blockEntity.getStack(CATALYST_SLOT).isEmpty() && blockEntity.getStack(CATALYST_SLOT).isIn(ModItemTagProvider.FORGING_CATALYSTS) && recipe.value().getCatalyst().test(blockEntity.getStack(CATALYST_SLOT))) {
+                        return recipe.value().getCookingTime();
+                    } else if (!recipe.value().needsCatalyst() && !blockEntity.getStack(CATALYST_SLOT).isEmpty() && blockEntity.getStack(CATALYST_SLOT).isIn(ModItemTagProvider.FORGING_CATALYSTS)) {
+                        return recipe.value().getCookingTime() / 2;
+                    } else {
+                        return recipe.value().getCookingTime();
+                    }
+                })
+                .orElse(20/*todo changed for testing*/);
     }
 
     private static boolean craftRecipe(DynamicRegistryManager registryManager, RecipeEntry<?> recipeEntry, DefaultedList<ItemStack> inventory, int count) {
@@ -221,7 +353,7 @@ public class ForgeBlockEntity extends LockableContainerBlockEntity implements Si
             ItemStack resultStack = recipeEntry.value().getResult(registryManager);
             ItemStack currentOutputStack = inventory.get(OUTPUT_SLOT);
             if (currentOutputStack.isEmpty()) {
-                inventory.set(FUEL_SLOT_OUT, resultStack.copy());
+                inventory.set(OUTPUT_SLOT, resultStack.copy());
             } else if (ItemStack.areItemsAndComponentsEqual(currentOutputStack, resultStack)) {
                 currentOutputStack.increment(1);
             }
@@ -286,11 +418,11 @@ public class ForgeBlockEntity extends LockableContainerBlockEntity implements Si
     public boolean isValid(int slot, ItemStack stack) {
         if (slot == OUTPUT_SLOT) {
             return false;
-        } else if (slot != FUEL_SLOT_IN) {
+        } else if (slot != FUEL_SLOT) {
             return true;
         } else {
-            ItemStack itemStack = this.inventory.get(FUEL_SLOT_OUT);
-            return stack.isOf(Items.BUCKET) && !itemStack.isOf(Items.BUCKET);
+            ItemStack itemStack = this.inventory.get(FUEL_SLOT);
+            return canUseAsFuel(stack) || stack.isOf(Items.BUCKET) && !itemStack.isOf(Items.BUCKET);
         }
     }
 
@@ -315,7 +447,7 @@ public class ForgeBlockEntity extends LockableContainerBlockEntity implements Si
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return dir == Direction.DOWN && (slot == FUEL_SLOT_OUT || slot == OUTPUT_SLOT);
+        return dir == Direction.DOWN && (slot == FUEL_SLOT ? stack.isOf(Items.BUCKET) : slot == OUTPUT_SLOT);
     }
 
     @Override

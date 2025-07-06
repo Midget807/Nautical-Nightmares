@@ -1,2 +1,9 @@
-// 1.21.1	2025-06-19T14:50:51.6446246	Nautical Nightmares/Tags for minecraft:item
+// 1.21.1	2025-07-06T19:50:18.1632648	Nautical Nightmares/Tags for minecraft:item
 d24c0c3b1fa5e522dabea4c51890b49dcfbc360d data\nautical_nightmares\tags\item\auralite_items.json
+bc640e8001aa3b079fde2f8ea6c1e7c80fee2d00 data\nautical_nightmares\tags\item\coal_forging.json
+e355df7d2e2ff9e7ea478654504f6c42ba56ef5e data\nautical_nightmares\tags\item\blaze_powder_forging.json
+fc091e451b5079c236d25add3e750aa55f63abc6 data\nautical_nightmares\tags\item\blaze_rod_forging.json
+10a297c900214499f2a8a40f1c32d8a135d4b67e data\nautical_nightmares\tags\item\lava_forging.json
+00ef7ccd585fc5e7c5af469c79abed92342f17cc data\nautical_nightmares\tags\item\barite_forging.json
+6c57ad8f898e2ec975238a9ccc87908aba62ee25 data\nautical_nightmares\tags\item\forging_catalysts.json
+8d34044e08feb6646d721f2360eeb208ea17670d data\nautical_nightmares\tags\item\coal_block_forging.json

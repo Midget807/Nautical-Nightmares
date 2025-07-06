@@ -4,6 +4,7 @@ import net.midget807.nautical_nightmares.block.entity.ForgeBlockEntity;
 import net.midget807.nautical_nightmares.recipe.ForgingRecipe;
 import net.midget807.nautical_nightmares.recipe.ForgingRecipeInput;
 import net.midget807.nautical_nightmares.registry.ModScreenHandlers;
+import net.minecraft.client.gui.screen.ingame.CyclingSlotIcon;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -22,11 +23,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 public class ForgeScreenHandler extends AbstractRecipeScreenHandler<ForgingRecipeInput, ForgingRecipe> {
-    protected static final int INPUT_SLOT_1 = 0;
-    protected static final int INPUT_SLOT_2 = 1;
-    protected static final int FUEL_SLOT_IN = 2;
-    protected static final int FUEL_SLOT_OUT = 3;
-    protected static final int OUTPUT_SLOT = 4;
+    public static final int INPUT_SLOT_1 = 0;
+    public static final int INPUT_SLOT_2 = 1;
+    public static final int FUEL_SLOT = 2;
+    public static final int CATALYST_SLOT = 3;
+    public static final int OUTPUT_SLOT = 4;
     public final Inventory inventory;
     public final PropertyDelegate propertyDelegate;
     public final World world;
@@ -35,15 +36,15 @@ public class ForgeScreenHandler extends AbstractRecipeScreenHandler<ForgingRecip
     public ForgeScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
         super(ModScreenHandlers.FORGE_SCREEN_HANDLER, syncId);
         checkSize(inventory, 5);
-        checkDataCount(propertyDelegate, 3);
+        checkDataCount(propertyDelegate, 4);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
         this.world = playerInventory.player.getWorld();
 
-        this.addSlot(new Slot(inventory, INPUT_SLOT_1, 66, 17));
-        this.addSlot(new Slot(inventory, INPUT_SLOT_2, 46, 17));
-        this.addSlot(new Slot(inventory, FUEL_SLOT_IN, 56, 53));
-        this.addSlot(new FurnaceOutputSlot(playerInventory.player, inventory, FUEL_SLOT_OUT, 56, 73));
+        this.addSlot(new Slot(inventory, INPUT_SLOT_1, 44, 17));
+        this.addSlot(new Slot(inventory, INPUT_SLOT_2, 68, 17));
+        this.addSlot(new Slot(inventory, FUEL_SLOT, 44, 53));
+        this.addSlot(new Slot(inventory, CATALYST_SLOT, 68, 53));
         this.addSlot(new FurnaceOutputSlot(playerInventory.player, inventory, OUTPUT_SLOT, 116, 35));
 
         for (int i = 0; i < 3; i++) {
@@ -104,13 +105,13 @@ public class ForgeScreenHandler extends AbstractRecipeScreenHandler<ForgingRecip
     public void clearCraftingSlots() {
         this.getSlot(INPUT_SLOT_1).setStackNoCallbacks(ItemStack.EMPTY);
         this.getSlot(INPUT_SLOT_2).setStackNoCallbacks(ItemStack.EMPTY);
-        this.getSlot(FUEL_SLOT_OUT).setStackNoCallbacks(ItemStack.EMPTY);
+        this.getSlot(FUEL_SLOT).setStackNoCallbacks(ItemStack.EMPTY);
         this.getSlot(OUTPUT_SLOT).setStackNoCallbacks(ItemStack.EMPTY);
     }
 
     @Override
     public boolean matches(RecipeEntry<ForgingRecipe> recipe) {
-        return recipe.value().matches(new ForgingRecipeInput(this.inventory.getStack(INPUT_SLOT_1), this.inventory.getStack(INPUT_SLOT_2), this.inventory.getStack(FUEL_SLOT_IN)), this.world);
+        return recipe.value().matches(new ForgingRecipeInput(this.inventory.getStack(INPUT_SLOT_1), this.inventory.getStack(INPUT_SLOT_2), this.inventory.getStack(FUEL_SLOT), this.inventory.getStack(CATALYST_SLOT)), this.world);
     }
 
     @Override
@@ -140,7 +141,7 @@ public class ForgeScreenHandler extends AbstractRecipeScreenHandler<ForgingRecip
 
     @Override
     public boolean canInsertIntoSlot(int index) {
-        return index != FUEL_SLOT_IN;
+        return index != OUTPUT_SLOT;
     }
 
     public boolean isBurning() {
@@ -148,7 +149,7 @@ public class ForgeScreenHandler extends AbstractRecipeScreenHandler<ForgingRecip
     }
 
     public float getFuelProgress() {
-        int i = ForgeBlockEntity.fuelTime;
+        int i = propertyDelegate.get(ForgeBlockEntity.FUEL_TIME_PROPERTY_INDEX);
         return MathHelper.clamp((float) this.propertyDelegate.get(ForgeBlockEntity.BURN_TIME_PROPERTY_INDEX) / (float) i, 0.0f, 1.0f);
     }
 

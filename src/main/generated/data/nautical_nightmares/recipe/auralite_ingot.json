@@ -1,6 +1,9 @@
 {
   "type": "nautical_nightmares:forging",
-  "cookingTime": 600,
+  "catalyst": {
+    "item": "nautical_nightmares:barite_shard"
+  },
+  "cookingTime": 400,
   "experience": 2.0,
   "fuel": {
     "item": "minecraft:blaze_rod"

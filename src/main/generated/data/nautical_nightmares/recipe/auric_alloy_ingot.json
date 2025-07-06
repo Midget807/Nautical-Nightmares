@@ -1,9 +1,12 @@
 {
   "type": "nautical_nightmares:forging",
-  "cookingTime": 600,
+  "catalyst": {
+    "item": "minecraft:quartz"
+  },
+  "cookingTime": 400,
   "experience": 1.2,
   "fuel": {
-    "item": "minecraft:blaze_powder"
+    "item": "minecraft:lava_bucket"
   },
   "item_1": {
     "item": "nautical_nightmares:auric_steel_ingot"

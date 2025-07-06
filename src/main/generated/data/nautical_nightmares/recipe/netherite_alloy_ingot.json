@@ -1,6 +1,9 @@
 {
   "type": "nautical_nightmares:forging",
-  "cookingTime": 600,
+  "catalyst": {
+    "item": "minecraft:quartz"
+  },
+  "cookingTime": 400,
   "experience": 1.5,
   "fuel": {
     "item": "minecraft:blaze_rod"

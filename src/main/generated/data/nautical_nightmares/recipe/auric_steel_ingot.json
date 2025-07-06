@@ -1,6 +1,7 @@
 {
   "type": "nautical_nightmares:forging",
-  "cookingTime": 600,
+  "catalyst": [],
+  "cookingTime": 400,
   "experience": 0.8,
   "fuel": {
     "item": "minecraft:lava_bucket"

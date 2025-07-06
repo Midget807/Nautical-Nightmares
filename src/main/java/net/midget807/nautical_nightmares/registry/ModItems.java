@@ -33,6 +33,8 @@ public class ModItems {
     public static final Item AURIC_ALLOY_INGOT = registerItem("auric_alloy_ingot", new Item(new Item.Settings()));
     public static final Item NETHERITE_ALLOY_INGOT = registerItem("netherite_alloy_ingot", new Item(new Item.Settings()));
 
+    public static final Item BARITE_SHARD = registerItem("barite_shard", new Item(new Item.Settings()));
+
     public static final Item C_DIVE_HELMET = registerItem("copper_dive_helmet", new DiveSuitItem(ModArmorMaterials.COPPER, ArmorItem.Type.HELMET, 2.0, new Item.Settings().maxCount(1)));
     public static final Item C_DIVE_SUIT = registerItem("copper_dive_suit", new DiveSuitItem(ModArmorMaterials.COPPER, ArmorItem.Type.CHESTPLATE, 4.0, new Item.Settings().maxCount(1)));
     public static final Item C_DIVE_PANTS = registerItem("copper_dive_pants", new DiveSuitItem(ModArmorMaterials.COPPER, ArmorItem.Type.LEGGINGS, 3.0, new Item.Settings().maxCount(1)));
