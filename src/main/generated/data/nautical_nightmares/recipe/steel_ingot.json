@@ -12,6 +12,7 @@
   "item_2": {
     "tag": "minecraft:coals"
   },
+  "needsCatalyst": false,
   "result": {
     "count": 1,
     "id": "nautical_nightmares:steel_ingot"

@@ -126,12 +126,12 @@ public class ForgeScreenHandler extends AbstractRecipeScreenHandler<ForgingRecip
 
     @Override
     public int getCraftingHeight() {
-        return 1;
+        return 2;
     }
 
     @Override
     public int getCraftingSlotCount() {
-        return 3;
+        return 4;
     }
 
     @Override

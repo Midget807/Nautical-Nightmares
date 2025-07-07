@@ -3,7 +3,7 @@
   "catalyst": {
     "item": "minecraft:quartz"
   },
-  "cookingTime": 400,
+  "cookingTime": 20,
   "experience": 1.5,
   "fuel": {
     "item": "minecraft:blaze_rod"
@@ -14,6 +14,7 @@
   "item_2": {
     "item": "minecraft:netherite_ingot"
   },
+  "needsCatalyst": true,
   "result": {
     "count": 1,
     "id": "nautical_nightmares:netherite_alloy_ingot"

@@ -28,17 +28,19 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
     public final Ingredient item1;
     public final Ingredient item2;
     public final Ingredient fuel;
+    public final boolean needsCatalyst;;
     @Nullable
     public final Ingredient catalyst;
     public final ItemStack result;
     public final float experience;
     public final int cookingTime;
 
-    public ForgingRecipe(String group, Ingredient item1, Ingredient item2, Ingredient fuel, @Nullable Ingredient catalyst, ItemStack result, float experience, int cookingTime) {
+    public ForgingRecipe(String group, Ingredient item1, Ingredient item2, Ingredient fuel, boolean needsCatalyst, @Nullable Ingredient catalyst, ItemStack result, float experience, int cookingTime) {
         this.group = group;
         this.item1 = item1;
         this.item2 = item2;
         this.fuel = fuel;
+        this.needsCatalyst = needsCatalyst;
         this.catalyst = catalyst;
         this.result = result;
         this.experience = experience;
@@ -126,6 +128,7 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
                             Ingredient.ALLOW_EMPTY_CODEC.fieldOf(ITEM_1_KEY).forGetter(recipe -> recipe.item1),
                             Ingredient.ALLOW_EMPTY_CODEC.fieldOf(ITEM_2_KEY).forGetter(recipe -> recipe.item2),
                             Ingredient.ALLOW_EMPTY_CODEC.fieldOf(FUEL_KEY).forGetter(recipe -> recipe.fuel),
+                            Codec.BOOL.fieldOf("needsCatalyst").orElse(false).forGetter(recipe -> recipe.needsCatalyst),
                             Ingredient.ALLOW_EMPTY_CODEC.fieldOf(CATALYST_KEY).forGetter(recipe -> recipe.catalyst),
                             ItemStack.VALIDATED_CODEC.fieldOf(OUTPUT_KEY).forGetter(recipe -> recipe.result),
                             Codec.FLOAT.fieldOf("experience").orElse(0.0F).forGetter(recipe -> recipe.experience),
@@ -149,11 +152,12 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
             Ingredient ingredient = Ingredient.PACKET_CODEC.decode(buf);
             Ingredient ingredient2 = Ingredient.PACKET_CODEC.decode(buf);
             Ingredient ingredient3 = Ingredient.PACKET_CODEC.decode(buf);
+            boolean bl = buf.readBoolean();
             Ingredient ingredient4 = Ingredient.PACKET_CODEC.decode(buf);
             ItemStack itemStack = ItemStack.PACKET_CODEC.decode(buf);
             float f = buf.readFloat();
             int i = buf.readVarInt();
-            return new ForgingRecipe(string, ingredient, ingredient2, ingredient3, ingredient4, itemStack, f, i);
+            return new ForgingRecipe(string, ingredient, ingredient2, ingredient3, bl, ingredient4, itemStack, f, i);
         }
 
         private static void write(RegistryByteBuf buf, ForgingRecipe recipe) {
@@ -161,6 +165,7 @@ public class ForgingRecipe implements Recipe<ForgingRecipeInput> {
             Ingredient.PACKET_CODEC.encode(buf, recipe.item1);
             Ingredient.PACKET_CODEC.encode(buf, recipe.item2);
             Ingredient.PACKET_CODEC.encode(buf, recipe.fuel);
+            buf.writeBoolean(recipe.needsCatalyst);
             Ingredient.PACKET_CODEC.encode(buf, recipe.catalyst);
             ItemStack.PACKET_CODEC.encode(buf, recipe.result);
             buf.writeFloat(recipe.experience);

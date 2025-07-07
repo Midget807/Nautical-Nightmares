@@ -3,7 +3,7 @@
   "catalyst": {
     "item": "minecraft:quartz"
   },
-  "cookingTime": 400,
+  "cookingTime": 20,
   "experience": 1.2,
   "fuel": {
     "item": "minecraft:lava_bucket"
@@ -14,6 +14,7 @@
   "item_2": {
     "item": "nautical_nightmares:ferric_copper_ingot"
   },
+  "needsCatalyst": true,
   "result": {
     "count": 1,
     "id": "nautical_nightmares:auric_alloy_ingot"

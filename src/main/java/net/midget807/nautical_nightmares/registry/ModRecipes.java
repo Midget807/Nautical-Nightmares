@@ -11,7 +11,7 @@ import net.minecraft.registry.Registry;
 public class ModRecipes {
 
     public static final RecipeType<ForgingRecipe> FORGING_TYPE = registerType("forging");
-    public static final RecipeSerializer<ForgingRecipe> FORGING_SERIALIZER = registerSerializer("forging", new ForgingRecipe.Serializer(600));
+    public static final RecipeSerializer<ForgingRecipe> FORGING_SERIALIZER = registerSerializer("forging", new ForgingRecipe.Serializer(20));
 
     private static <T extends Recipe<?>>RecipeType<T> registerType(String name) {
         return Registry.register(Registries.RECIPE_TYPE, NauticalNightmaresMain.id(name), new RecipeType<T>() {
